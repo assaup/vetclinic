@@ -1,0 +1,37 @@
+# Python/Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.db
+db.sqlite3
+*.sqlite3
+*.log
+*.pot
+*.mo
+*.py[cod]
+*.swp
+*.swo
+.env
+/media/
+*.sqlite
+
+# Django migrations
+*/migrations/*.py
+*/migrations/*.pyc
+!*/migrations/__init__.py
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# VSCode
+.vscode/
+.idea/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db

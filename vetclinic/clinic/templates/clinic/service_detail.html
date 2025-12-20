@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ service.name }}</title>
+</head>
+<body>
+
+<h1>{{ service.name }}</h1>
+
+<p><strong>Описание:</strong> {{ service.description }}</p>
+<p><strong>Цена:</strong> {{ service.price }}</p>
+<p><strong>Категория:</strong> {{ service.category }}</p>
+
+<a href="{% url 'clinic:service_list' %}">Назад</a>
+
+</body>
+</html>
