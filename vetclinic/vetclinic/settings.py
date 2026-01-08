@@ -56,6 +56,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'vetclinic.urls'
+LOGIN_URL = 'clinic:login'
+LOGIN_REDIRECT_URL = 'clinic:home'
+LOGOUT_REDIRECT_URL = 'clinic:login'
 
 REST_FRAMEWORK = {
     # Пагинация по 5 объектов на страницу

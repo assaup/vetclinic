@@ -1,0 +1,27 @@
+{% extends "clinic/base.html" %}
+
+{% block title %}
+{% if form.instance.pk %}
+Редактирование услуги
+{% else %}
+Добавление услуги
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>
+    {% if form.instance.pk %}
+        Редактировать услугу
+    {% else %}
+        Добавить услугу
+    {% endif %}
+</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button type="submit" class="btn btn-add">Сохранить</button>
+    <a href="{% url 'clinic:service_list' %}" class="btn btn-back">Отмена</a>
+</form>
+{% endblock %}

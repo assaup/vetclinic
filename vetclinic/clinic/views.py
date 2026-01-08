@@ -1,29 +1,34 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Service
-from .models import Appointment
-from .forms import ServiceForm
-from rest_framework.viewsets import ModelViewSet
-from .serializers import ServiceSerializer
-from .serializers import AppointmentSerializer
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
 from django.utils import timezone
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.decorators import login_required
+
+from rest_framework import viewsets, filters, status
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from .serializers import AppointmentSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.paginator import Paginator
+from django.utils.dateparse import parse_date
 
+from .models import Service, Appointment, Client, Pet, Vet
+from .forms import ServiceForm, AppointmentForm
+from .serializers import (
+    ServiceSerializer, 
+    AppointmentSerializer, 
+    ClientSerializer, 
+    PetSerializer, 
+    VetSerializer
+)
 # Просмотр списка
 def service_list(request):
     services = Service.objects.all()
-    return render(request, 'clinic/service_list.html', {'services': services})
+    return render(request, 'clinic/services/service_list.html', {'services': services})
 
 # Просмотр детали
 def service_detail(request, pk):
     service = get_object_or_404(Service, pk=pk)
-    return render(request, 'clinic/service_detail.html', {'service': service})
+    return render(request, 'clinic/services/service_detail.html', {'service': service})
 
 # Добавление
 def service_create(request):
@@ -34,7 +39,7 @@ def service_create(request):
             return redirect('clinic:service_list')
     else:
         form = ServiceForm()
-    return render(request, 'clinic/service_form.html', {'form': form})
+    return render(request, 'clinic/services/service_form.html', {'form': form})
 
 # Редактирование
 def service_update(request, pk):
@@ -46,7 +51,7 @@ def service_update(request, pk):
             return redirect('clinic:service_list')
     else:
         form = ServiceForm(instance=service)
-    return render(request, 'clinic/service_form.html', {'form': form})
+    return render(request, 'clinic/services/service_form.html', {'form': form})
 
 # Удаление
 def service_delete(request, pk):
@@ -54,7 +59,59 @@ def service_delete(request, pk):
     if request.method == 'POST':
         service.delete()
         return redirect('clinic:service_list')
-    return render(request, 'clinic/service_confirm_delete.html', {'service': service})
+    return render(request, 'clinic/services/service_confirm_delete.html', {'service': service})
+
+
+def appointment_list(request):
+    order = request.GET.get('order', 'asc')
+
+    if order == 'asc':
+        appointments = Appointment.objects.all().order_by('appointment_time')
+    else:
+        appointments = Appointment.objects.all().order_by('-appointment_time')
+
+    paginator = Paginator(appointments, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        'clinic/appointments/appointment_list.html',
+        {
+            'page_obj': page_obj,
+            'order': order,
+        }
+    )
+
+def appointment_create(request):
+    form = AppointmentForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('clinic:appointment_list')
+    return render(request, 'clinic/appointments/appointment_form.html', {'form': form})
+
+def appointment_update(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    form = AppointmentForm(request.POST or None, instance=appointment)
+    if form.is_valid():
+        form.save()
+        return redirect('clinic:appointment_list')
+    return render(request, 'clinic/appointments/appointment_form.html', {'form': form})
+
+def appointment_delete(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        appointment.delete()
+        return redirect('clinic:appointment_list')
+    return render(
+        request,
+        'clinic/appointments/appointment_confirm_delete.html',
+        {'appointment': appointment}
+    )
+
+@login_required
+def home(request):
+    return render(request, "clinic/home.html")
 
 class ServiceViewSet(ModelViewSet):
     queryset = Service.objects.all()
@@ -70,6 +127,10 @@ class AppointmentViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Appointment.objects.select_related('pet', 'vet', 'service', 'status').all()
+        user = self.request.user
+
+        if not user.is_staff:  # обычный пользователь видит только свои записи
+            queryset = queryset.filter(pet__owner=user)
 
         # будущие приёмы, кроме отменённых
         future_appointments = Q(appointment_time__gte=timezone.now()) & ~Q(status__name='Отменена')
@@ -82,8 +143,18 @@ class AppointmentViewSet(ModelViewSet):
 
         queryset = queryset.filter(combined_filter)
 
-        return queryset
 
+        # фильтрация по диапазону даты
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        if start_date and end_date:
+            from django.utils.dateparse import parse_date
+            queryset = queryset.filter(
+                appointment_time__date__gte=parse_date(start_date),
+                appointment_time__date__lte=parse_date(end_date)
+            )
+
+        return queryset
 
     # получить все приёмы на сегодня
     @action(methods=['GET'], detail=False)
@@ -104,3 +175,24 @@ class AppointmentViewSet(ModelViewSet):
         appointment.save()
         serializer = self.get_serializer(appointment)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ClientViewSet(viewsets.ModelViewSet):
+        queryset = Client.objects.all()
+        serializer_class = ClientSerializer
+
+class PetViewSet(viewsets.ModelViewSet):
+    queryset = Pet.objects.all() 
+    serializer_class = PetSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        if not user.is_staff:  # обычный пользователь видит только своих питомцев
+            queryset = queryset.filter(owner=user)
+
+        return queryset
+
+class VetViewSet(viewsets.ModelViewSet):
+    queryset = Vet.objects.all()
+    serializer_class = VetSerializer

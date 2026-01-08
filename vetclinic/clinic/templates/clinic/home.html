@@ -1,0 +1,12 @@
+{% extends "clinic/base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h3>Добро пожаловать в систему VetClinic</h3>
+
+<ul>
+    <li><a href="{% url 'clinic:appointment_list' %}">Записи на приём</a></li>
+    <li><a href="{% url 'clinic:service_list' %}">Услуги</a></li>
+</ul>
+{% endblock %}

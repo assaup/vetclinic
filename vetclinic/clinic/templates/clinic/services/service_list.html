@@ -1,0 +1,50 @@
+{% extends "clinic/base.html" %}
+
+{% block title %}Услуги{% endblock %}
+
+{% block content %}
+
+<h2>Услуги ветеринарной клиники</h2>
+
+<a href="{% url 'clinic:service_add' %}" class="btn btn-add">
+    Добавить услугу
+</a>
+
+<br><br>
+
+<div class="cards">
+    {% for service in services %}
+        <div class="card">
+            <div>
+                <h3>{{ service.name }}</h3>
+
+                <p>{{ service.description|truncatechars:100 }}</p>
+
+                <p>
+                    <strong>Категория:</strong>
+                    {{ service.category|default:"—" }}
+                </p>
+
+                <div class="price">
+                    {{ service.price }} ₽
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <a href="{% url 'clinic:service_detail' service.pk %}" class="btn btn-back">
+                    Подробнее
+                </a>
+                <a href="{% url 'clinic:service_edit' service.pk %}" class="btn btn-edit">
+                    Редактировать
+                </a>
+                <a href="{% url 'clinic:service_delete' service.pk %}" class="btn btn-delete">
+                    Удалить
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Услуги пока не добавлены.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}

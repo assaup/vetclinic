@@ -1,0 +1,14 @@
+{% extends "clinic/base.html" %}
+
+{% block title %}{{ service.name }}{% endblock %}
+
+{% block content %}
+<h2>{{ service.name }}</h2>
+
+<p><strong>Описание:</strong> {{ service.description }}</p>
+<p><strong>Цена:</strong> {{ service.price }}</p>
+<p><strong>Категория:</strong> {{ service.category }}</p>
+
+<a href="{% url 'clinic:service_list' %}" class="btn btn-back">Назад</a>
+<a href="{% url 'clinic:service_edit' service.pk %}" class="btn btn-edit">Редактировать</a>
+{% endblock %}

@@ -13,9 +13,12 @@
         }
 
         header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             background-color: #2f855a;
             color: white;
-            padding: 15px;
+            padding: 15px 70px;
         }
 
         header h1 {
@@ -83,13 +86,113 @@
         .btn-back {
             background-color: #718096;
         }
-
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
         footer {
             text-align: center;
             padding: 10px;
             margin-top: 20px;
             font-size: 14px;
             color: #666;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #1a202c;
+            font-size: 20px;
+        }
+
+        .card p {
+            margin: 6px 0;
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .card .price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #38a169;
+            margin-top: 12px;
+        }
+
+        .card-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .card-actions .btn {
+            flex: 1;
+            text-align: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .card-actions .btn-back {
+            background-color: #718096;
+        }
+
+        .card-actions .btn-back:hover {
+            background-color: #4a5568;
+        }
+
+        .card-actions .btn-edit {
+            background-color: #ed8936;
+        }
+
+        .card-actions .btn-edit:hover {
+            background-color: #dd6b20;
+        }
+
+        .card-actions .btn-delete {
+            background-color: #e53e3e;
+        }
+
+        .card-actions .btn-delete:hover {
+            background-color: #c53030;
+        }
+
+
+        .dashboard {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .dashboard .btn {
+            padding: 10px 20px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -99,7 +202,20 @@
     <h1>Ветеринарная клиника</h1>
     <nav>
         <a href="{% url 'clinic:service_list' %}">Услуги</a>
+        <a href="{% url 'clinic:appointment_list' %}">Запись на приём</a>
     </nav>
+    <div>
+        {% if user.is_authenticated %}
+            <p>
+                Вы вошли как <strong>{{ user.username }}</strong>
+            </p>
+
+            <form method="post" action="{% url 'clinic:logout' %}">
+                {% csrf_token %}
+                <button type="submit">Выйти</button>
+            </form>
+        {% endif %}
+    </div>
 </header>
 
 <main>

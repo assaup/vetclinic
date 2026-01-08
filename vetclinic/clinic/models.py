@@ -128,3 +128,4 @@ class VetService(models.Model):
 
     def __str__(self):
         return f"{self.vet} - {self.service}"
+
