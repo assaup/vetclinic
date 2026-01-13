@@ -1,0 +1,7 @@
+Django==5.2.9
+djangorestframework
+django-filter
+django-simple-history
+django-import-export
+flake8
+Pillow
