@@ -9,6 +9,4 @@ router.register(r'clients', ClientViewSet)
 router.register(r'pets', PetViewSet)
 router.register(r'vets', VetViewSet)
 
-urlpatterns = [
-    path('', include(router.urls)),
-]
+urlpatterns = [path('', include(router.urls))]

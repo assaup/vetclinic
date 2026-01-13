@@ -1,8 +1,6 @@
 from django import forms
 from django.utils import timezone
 from .models import Service, Appointment
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 
 
 class ServiceForm(forms.ModelForm):
@@ -19,7 +17,9 @@ class ServiceForm(forms.ModelForm):
             )
         return price
 
+
 class AppointmentForm(forms.ModelForm):
+
     class Meta:
         model = Appointment
         fields = [

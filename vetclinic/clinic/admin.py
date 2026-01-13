@@ -1,9 +1,20 @@
 from django.contrib import admin
-from simple_history.admin import SimpleHistoryAdmin 
+from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ExportMixin
 from .resources import AppointmentResource
 from django.utils import timezone
-from .models import *
+from .models import (
+    Client,
+    Pet,
+    Vet,
+    Service,
+    Appointment,
+    VetService,
+    AppointmentStatus,
+    VetSpecialization,
+    ServiceCategory,
+)
+
 
 # Inline для питомцев в Client
 class PetInline(admin.TabularInline):
@@ -62,7 +73,15 @@ class VetAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(ExportMixin, SimpleHistoryAdmin):
     resource_class = AppointmentResource
-    list_display = ('pet', 'vet', 'service', 'status', 'appointment_time', 'created_at', 'updated_at')
+    list_display = (
+        'pet',
+        'vet',
+        'service',
+        'status',
+        'appointment_time',
+        'created_at',
+        'updated_at',
+    )
     list_filter = ('status', 'vet', 'service', 'appointment_time')
     search_fields = ('pet__name', 'vet__name', 'service__name')
     date_hierarchy = 'appointment_time'
@@ -71,6 +90,7 @@ class AppointmentAdmin(ExportMixin, SimpleHistoryAdmin):
 
     def get_export_queryset(self, request):
         return self.model.objects.filter(appointment_time__gte=timezone.now())
+
 
 # VetService
 @admin.register(VetService)

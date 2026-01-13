@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils import timezone
-from .models import Appointment, Pet, Vet, Service, AppointmentStatus
+from .models import Appointment, Pet, Vet, Service, Client
+
 
 class ServiceSerializer(serializers.ModelSerializer):
 
@@ -12,6 +13,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Service
         fields = '__all__'
+
 
 class AppointmentSerializer(serializers.ModelSerializer):
     pet_name = serializers.CharField(source='pet.name', read_only=True)
@@ -27,7 +29,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         if value < timezone.now():
             raise serializers.ValidationError("Дата и время приёма не могут быть в прошлом.")
         return value
-        
+
     def validate(self, attrs):
         pet = attrs.get('pet')
         vet = attrs.get('vet')
@@ -68,13 +70,11 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return attrs
 
 
-from rest_framework import serializers
-from .models import Client, Pet, Vet
-
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Client
         fields = '__all__'
+
 
 class PetSerializer(serializers.ModelSerializer):
     owner = ClientSerializer(read_only=True)
@@ -86,11 +86,10 @@ class PetSerializer(serializers.ModelSerializer):
         model = Pet
         fields = ['id', 'name', 'species', 'breed', 'birth_date', 'owner', 'owner_id']
 
+
 class VetSerializer(serializers.ModelSerializer):
     specialization_name = serializers.CharField(source='specialization.name', read_only=True)
-    
+
     class Meta:
         model = Vet
         fields = ['id', 'name', 'specialization', 'specialization_name', 'photo', 'created_at']
-
-    

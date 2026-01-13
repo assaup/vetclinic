@@ -1,6 +1,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 
+
 # 1. Справочники
 class AppointmentStatus(models.Model):
     name = models.CharField("Статус записи", max_length=50)
@@ -40,7 +41,13 @@ class Service(models.Model):
     name = models.CharField("Название услуги", max_length=150)
     description = models.TextField("Описание услуги")
     price = models.DecimalField("Цена", max_digits=8, decimal_places=2)
-    category = models.ForeignKey(ServiceCategory, verbose_name="Категория", on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(
+        ServiceCategory,
+        verbose_name="Категория",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+     )
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
 
     history = HistoricalRecords()
@@ -68,7 +75,12 @@ class Client(models.Model):
 
 
 class Pet(models.Model):
-    owner = models.ForeignKey(Client, verbose_name="Владелец", on_delete=models.CASCADE, related_name='pets')
+    owner = models.ForeignKey(
+        Client,
+        verbose_name="Владелец",
+        on_delete=models.CASCADE,
+        related_name='pets'
+    )
     name = models.CharField("Имя питомца", max_length=100)
     species = models.CharField("Вид", max_length=50)
     breed = models.CharField("Порода", max_length=100, blank=True)
@@ -85,7 +97,11 @@ class Pet(models.Model):
 
 class Vet(models.Model):
     name = models.CharField("Имя ветеринара", max_length=100)
-    specialization = models.ForeignKey(VetSpecialization, verbose_name="Специализация", on_delete=models.PROTECT)
+    specialization = models.ForeignKey(
+        VetSpecialization,
+        verbose_name="Специализация",
+        on_delete=models.PROTECT
+    )
     photo = models.ImageField("Фото", upload_to='vets/', null=True, blank=True)
     created_at = models.DateTimeField("Дата создания", auto_now_add=True)
 
@@ -128,4 +144,3 @@ class VetService(models.Model):
 
     def __str__(self):
         return f"{self.vet} - {self.service}"
-

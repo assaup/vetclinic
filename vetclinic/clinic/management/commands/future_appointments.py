@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from clinic.models import Appointment, Vet
 
+
 class Command(BaseCommand):
     help = "Выводит количество будущих приёмов для каждого ветеринара"
 
